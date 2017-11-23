@@ -37,14 +37,15 @@ generate() {
   cp ./tsconfig.json ./.tmp/$PACKAGE/
 
   # rename js to ts
-  rename -S .js .tsx ./.tmp/$PACKAGE/src/**/*.js ./.tmp/$PACKAGE/src/*.js 2> /dev/null
+  for files in ./.tmp/$PACKAGE/src/**/*.js; do mv "$files" "${files%.js}.tsx"; done
+  for files in ./.tmp/$PACKAGE/src/*.js; do mv "$files" "${files%.js}.tsx"; done
 
   #compile, output dts
   $NODE_BIN/tsc -p ./.tmp/$PACKAGE/ > /dev/null
 
   # copy .d.ts files to main package folder
-  rm ./.tmp/$PACKAGE/dist-dts/**/*.js ./.tmp/$PACKAGE/dist-dts/*.js 2> /dev/null
-  cp -r ./.tmp/$PACKAGE/dist-dts/ ./packages/$PACKAGE
+  rm ./.tmp/$PACKAGE/dist-dts/**/*.js ./.tmp/$PACKAGE/dist-dts/*.js
+  cp -R ./.tmp/$PACKAGE/dist-dts/. ./packages/$PACKAGE
 
   # combine individual .d.ts files
   node ./scripts/generate-package-json.js $PACKAGE > ./packages/$PACKAGE/package.json
